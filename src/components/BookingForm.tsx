@@ -113,9 +113,9 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp</label>
             <input
-              type="tel" required placeholder="+51 999 888 777"
+              type="tel" required placeholder="Ej. 999888777" maxLength={9} pattern="[0-9]{9}"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EE744B] focus:border-transparent transition-all bg-white text-gray-900"
-              value={telefono} onChange={(e) => setTelefono(e.target.value)}
+              value={telefono} onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 9))}
             />
           </div>
           <div className="sm:col-span-2">
