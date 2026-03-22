@@ -17,6 +17,13 @@ export async function createBookingAction(formData: FormData) {
       return { success: false, error: 'Faltan datos requeridos.' };
     }
 
+    const { data: sedeData } = await (supabase.from('sedes') as any)
+      .select('nombre')
+      .eq('id', sede_id)
+      .single();
+      
+    const sede_nombre = sedeData?.nombre || 'Sede Desconocida';
+
     const start = parseISO(fecha_entrada);
     const end = parseISO(fecha_salida);
     
@@ -30,13 +37,7 @@ export async function createBookingAction(formData: FormData) {
        const hours = Math.max(1, differenceInHours(end, start));
        monto_total = hours * 20; // $20/hr tarifa base sauna
     } else {
-       const { data: sedeData } = await (supabase.from('sedes') as any)
-         .select('nombre')
-         .eq('id', sede_id)
-         .single();
-         
-       const nombreSede = sedeData?.nombre?.toLowerCase() || '';
-       const basePrice = nombreSede.includes('sol de pimentel') ? 180 : 150;
+       const basePrice = sede_nombre.toLowerCase().includes('sol de pimentel') ? 180 : 150;
        const huespedes = parseInt(formData.get('huespedes') as string || '1', 10);
        const extras = Math.max(0, huespedes - 4) * 25;
 
@@ -49,7 +50,7 @@ export async function createBookingAction(formData: FormData) {
     const { data: overlappingBookings, error: overlapError } = await (supabase.from('reservas') as any)
       .select('id')
       .eq('sede_id', sede_id)
-      .in('estado', ['pendiente', 'confirmado'])
+      .in('estado', ['pendiente', 'confirmado','Pagado','pagado'])
       .lt('fecha_entrada', fecha_salida)
       .gt('fecha_salida', fecha_entrada);
 
@@ -86,6 +87,8 @@ export async function createBookingAction(formData: FormData) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: insertedData.id,
+            sede_id,
+            sede_nombre,
             cliente_nombre,
             cliente_correo,
             cliente_telefono,
