@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
-import { format, isWithinInterval, parseISO, startOfDay } from 'date-fns';
+import { format, isWithinInterval, parseISO, startOfDay, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
 import { createBookingAction } from '../app/reservar/[sedeId]/actions';
@@ -13,12 +13,18 @@ type ExistingBooking = {
   fecha_salida: string;
 };
 
-export default function BookingForm({ sedeId, existingBookings }: { sedeId: string; existingBookings: ExistingBooking[]; }) {
+export default function BookingForm({ sedeId, existingBookings, basePrice = 150 }: { sedeId: string; existingBookings: ExistingBooking[]; basePrice?: number; }) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [huespedes, setHuespedes] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const nights = dateRange?.from && dateRange?.to ? Math.max(1, differenceInDays(dateRange.to, dateRange.from)) : 0;
+  const extraPersonCost = Math.max(0, huespedes - 4) * 25;
+  const totalPrice = nights > 0 ? nights * (basePrice + extraPersonCost) : 0;
+  const adelanto = totalPrice / 2;
 
   const blockedIntervals = existingBookings.map((b) => ({
     start: startOfDay(parseISO(b.fecha_entrada)),
@@ -43,6 +49,7 @@ export default function BookingForm({ sedeId, existingBookings }: { sedeId: stri
     formData.append('nombre', nombre);
     formData.append('correo', correo);
     formData.append('telefono', telefono);
+    formData.append('huespedes', huespedes.toString());
     formData.append('fechaEntrada', format(dateRange.from, 'yyyy-MM-dd'));
     formData.append('fechaSalida', format(dateRange.to, 'yyyy-MM-dd'));
     formData.append('isHourly', 'false');
@@ -67,7 +74,7 @@ export default function BookingForm({ sedeId, existingBookings }: { sedeId: stri
         <h2 className="text-xl font-bold text-gray-900 mb-1">Fechas de estadía</h2>
         <p className="text-sm text-gray-500 mb-5">Selecciona tu rango de días.</p>
         
-        <div className="w-full flex justify-center border border-gray-100 rounded-xl p-4 overflow-x-auto">
+        <div className="w-full flex justify-center border border-gray-100 rounded-xl p-2 sm:p-5 overflow-x-auto">
           <style dangerouslySetInnerHTML={{__html: `
             .rdp { --rdp-cell-size: 38px; --rdp-accent-color: #EE744B; --rdp-background-color: #fff0ec; margin: 0; }
             .rdp-day_selected { font-weight: 800 !important; color: white !important; }
@@ -111,18 +118,52 @@ export default function BookingForm({ sedeId, existingBookings }: { sedeId: stri
               value={telefono} onChange={(e) => setTelefono(e.target.value)}
             />
           </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Número de Huéspedes</label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <input
+                type="number" min="1" max="15" required
+                className="w-full sm:w-24 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EE744B] focus:border-transparent transition-all bg-white text-gray-900 text-center font-bold text-lg"
+                value={huespedes} onChange={(e) => setHuespedes(Math.max(1, parseInt(e.target.value) || 1))}
+              />
+              <span className="text-sm text-gray-500 bg-gray-50 px-4 py-3 rounded-lg border border-gray-100 flex-1">
+                Hasta 4 huéspedes incluidos. A partir del quinto se aplica un recargo de <strong className="text-gray-900">S/ 25 por persona / noche</strong>.
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Footer Section */}
-      <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-100">
-        <div className="flex flex-col items-start text-left">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total a Pagar</p>
-          <p className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-none">$50.00</p>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mt-8 pt-6 border-t border-gray-100">
+        <div className="flex flex-col w-full md:w-auto text-left gap-3">
+          {totalPrice > 0 ? (
+            <>
+              <div className="flex justify-between items-end gap-6 border-b border-gray-100 pb-3">
+                <span className="text-sm font-medium text-gray-500">Total por {nights} {nights === 1 ? 'noche' : 'noches'}</span>
+                <span className="text-lg font-extrabold text-gray-900 leading-none">S/ {totalPrice.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col gap-2 relative">
+                <div className="absolute -left-2 top-0 bottom-0 w-1 bg-[#EE744B] rounded-full"></div>
+                <div className="flex justify-between items-center gap-6 pl-2">
+                  <span className="text-xs font-bold text-[#EE744B] uppercase tracking-wider">Adelanto (50%)</span>
+                  <span className="text-xl font-extrabold text-[#EE744B] leading-none">S/ {adelanto.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center gap-6 pl-2">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pago presencial</span>
+                  <span className="text-sm font-bold text-gray-500 leading-none">S/ {adelanto.toFixed(2)}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="py-2">
+              <p className="text-sm text-gray-500 italic">Selecciona fechas de tu estadía para ver el total.</p>
+            </div>
+          )}
         </div>
         <button
-          type="submit" disabled={isSubmitting}
-          className="px-8 py-3 bg-[#EE744B] hover:bg-[#d45e36] text-white rounded-lg font-bold shadow-sm transition-colors disabled:opacity-50"
+          type="submit" disabled={isSubmitting || totalPrice === 0}
+          className="w-full md:w-auto px-8 py-4 bg-[#EE744B] hover:bg-[#d45e36] text-white rounded-xl font-bold shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:hover:translate-y-0 hover:-translate-y-0.5"
         >
           {isSubmitting ? 'Procesando...' : 'Confirmar Reserva'}
         </button>

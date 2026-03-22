@@ -27,11 +27,21 @@ export async function createBookingAction(formData: FormData) {
     let monto_total = 0;
     
     if (isHourly) {
-       const hours = differenceInHours(end, start);
-       monto_total = Math.max(0, hours * 20); // $20/hr tarifa base sauna
+       const hours = Math.max(1, differenceInHours(end, start));
+       monto_total = hours * 20; // $20/hr tarifa base sauna
     } else {
-       const nights = differenceInDays(end, start);
-       monto_total = Math.max(0, nights * 50); // $50/noche tarifa default
+       const { data: sedeData } = await (supabase.from('sedes') as any)
+         .select('nombre')
+         .eq('id', sede_id)
+         .single();
+         
+       const nombreSede = sedeData?.nombre?.toLowerCase() || '';
+       const basePrice = nombreSede.includes('sol de pimentel') ? 180 : 150;
+       const huespedes = parseInt(formData.get('huespedes') as string || '1', 10);
+       const extras = Math.max(0, huespedes - 4) * 25;
+
+       const nights = Math.max(1, differenceInDays(end, start));
+       monto_total = nights * (basePrice + extras);
     }
 
     // Overlap Check 

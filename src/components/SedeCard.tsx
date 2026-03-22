@@ -11,16 +11,20 @@ export default function SedeCard({ sede }: { sede: Sede }) {
   
   let imageUrl = null;
   let direccion = (sede as any).direccion;
+  let mapaUrl = null;
   
   if (sede.nombre.toLowerCase().includes('sol de pimentel')) {
     imageUrl = 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=690,fit=crop/C5tK1MdBFcE0xoxN/sala-ysu7Dvj1w3qfkFi3.png';
-    direccion = direccion || 'Condominio Sol de Pimentel, Chiclayo';
+    direccion = direccion || 'Sol de Pimentel, Chiclayo';
+    mapaUrl = 'https://maps.app.goo.gl/CUpUKXf2n2eYJ9Ty6';
   } else if (sede.nombre.toLowerCase().includes('españa')) {
     imageUrl = 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=564,fit=crop/C5tK1MdBFcE0xoxN/comedor-cocina-fuHN4NfGZaF38gc2.png';
-    direccion = direccion || 'Avenida España, Trujillo Centro';
+    direccion = direccion || 'Calle España, Chiclayo (2do piso)';
+    mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   } else if (isSauna) {
     imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyLeTURtVV8WGEBQ4nkbVHAAzmI1WSVcsZLg&s';
-    direccion = direccion || 'Zona Exclusiva SPA, Sede Central';
+    direccion = direccion || 'Calle España, Chiclayo (3er piso)';
+    mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   }
 
   direccion = direccion || 'Ubicación Premium';
@@ -85,9 +89,15 @@ export default function SedeCard({ sede }: { sede: Sede }) {
         <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-1 tracking-tight group-hover:text-[#49369b] transition-colors pr-16 leading-tight">
           {sede.nombre}
         </h3>
-        <p className="text-sm text-gray-500 font-medium mb-4 flex items-center gap-1.5 opacity-80">
-          <MapPin className="w-4 h-4 text-[#EE744B]" /> {direccion}
-        </p>
+        {mapaUrl ? (
+          <a href={mapaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-[#EE744B] font-medium mb-4 flex items-center gap-1.5 opacity-80 transition-colors">
+            <MapPin className="w-4 h-4 text-[#EE744B]" /> {direccion}
+          </a>
+        ) : (
+          <p className="text-sm text-gray-500 font-medium mb-4 flex items-center gap-1.5 opacity-80">
+            <MapPin className="w-4 h-4 text-[#EE744B]" /> {direccion}
+          </p>
+        )}
         
         {!isSauna && (
           <p className="text-sm font-medium text-gray-500 mb-8 h-10 leading-relaxed max-w-[90%]">
