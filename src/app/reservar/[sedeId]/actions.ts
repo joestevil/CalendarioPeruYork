@@ -53,7 +53,7 @@ export async function createBookingAction(formData: FormData) {
       .insert({
         sede_id,
         cliente_nombre,
-        cliente_correo,
+        correo: cliente_correo,
         cliente_telefono,
         fecha_entrada,
         fecha_salida,
