@@ -74,12 +74,25 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
         <h2 className="text-xl font-bold text-gray-900 mb-1">Fechas de estadía</h2>
         <p className="text-sm text-gray-500 mb-5">Selecciona tu rango de días.</p>
         
-        <div className="w-full flex justify-center border border-gray-100 rounded-xl p-2 sm:p-5 overflow-x-auto">
+        <div 
+          className="w-full border border-gray-100 rounded-xl overflow-x-auto custom-calendar-wrapper"
+          style={{ padding: 'clamp(0.5rem, 3vw, 1.5rem)' }}
+        >
           <style dangerouslySetInnerHTML={{__html: `
-            .rdp { --rdp-cell-size: 38px; --rdp-accent-color: #EE744B; --rdp-background-color: #fff0ec; margin: 0; }
+            .custom-calendar-wrapper { display: block; text-align: center; }
+            .rdp { 
+              --rdp-cell-size: min(12vw, 40px); 
+              --rdp-accent-color: #EE744B; 
+              --rdp-background-color: #fff0ec; 
+              margin: 0 auto; 
+              display: inline-block;
+            }
             .rdp-day_selected { font-weight: 800 !important; color: white !important; }
-            .rdp-day_selected:not(.rdp-day_range_start):not(.rdp-day_range_end) { background-color: var(--rdp-background-color) !important; color: var(--rdp-accent-color) !important; }
-            @media (min-width: 768px) { .rdp { --rdp-cell-size: 44px; } }
+            .rdp-day_selected:not(.rdp-day_range_start):not(.rdp-day_range_end) { 
+              background-color: var(--rdp-background-color) !important; 
+              color: var(--rdp-accent-color) !important; 
+            }
+            @media (min-width: 768px) { .rdp { --rdp-cell-size: 48px; } }
           `}} />
           <DayPicker mode="range" selected={dateRange} onSelect={setDateRange} disabled={isDateBlocked} locale={es} />
         </div>
