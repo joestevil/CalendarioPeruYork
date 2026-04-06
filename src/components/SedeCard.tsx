@@ -35,7 +35,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
     : 'from-[#49369b]/90 to-[#49369b]/40';
 
   return (
-    <div className="group bg-white rounded-[2rem] overflow-hidden transition-all duration-500 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_24px_50px_rgba(73,54,155,0.12)] border border-gray-100/80 flex flex-col relative hover:-translate-y-2">
+    <div className="group bg-white rounded-[2.5rem] overflow-hidden transition-all duration-500 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_24px_50px_rgba(73,54,155,0.12)] border border-gray-100/80 flex flex-col relative hover:-translate-y-2">
       
       {/* Banner principal */}
       <div className={`h-48 sm:h-56 w-full relative overflow-hidden transition-all duration-700 ${
@@ -74,19 +74,12 @@ export default function SedeCard({ sede }: { sede: Sede }) {
       </div>
       
       {/* Contenido de la Tarjeta */}
-      <div className="flex-grow p-6 md:p-8 flex flex-col relative bg-white">
+      <div 
+        className="flex-grow flex flex-col relative bg-white"
+        style={{ padding: 'clamp(1.5rem, 5vw, 2.5rem)', flexGrow: 1 }}
+      >
         
-        {/* Icono flotante superpuesto - Letra Inicial */}
-        {/* This section is now handled by the banner above if no image is present */}
-        {imageUrl && (
-          <div className="absolute -top-10 right-8 w-16 h-16 bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-50 flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 z-10">
-            <span className={`text-4xl font-black ${isSauna ? 'text-[#EE744B]' : 'text-[#49369b]'}`}>
-              {sede.nombre.charAt(0)}
-            </span>
-          </div>
-        )}
-
-        <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-1 tracking-tight group-hover:text-[#49369b] transition-colors pr-16 leading-tight">
+        <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 tracking-normal group-hover:text-[#49369b] transition-colors pr-12 leading-snug">
           {sede.nombre}
         </h3>
         {mapaUrl ? (
@@ -100,13 +93,13 @@ export default function SedeCard({ sede }: { sede: Sede }) {
         )}
         
         {!isSauna && (
-          <p className="text-sm font-medium text-gray-500 mb-8 h-10 leading-relaxed max-w-[90%]">
+          <p className="text-sm font-medium text-gray-500 mb-8 leading-loose tracking-wide">
             Tu espacio reservado ideal, con horarios fijos de check-in y check-out.
           </p>
         )}
         
         {/* Info de horas simplificada y elegante */}
-        <div className="mb-8 mt-auto">
+        <div className="mb-8">
           {!isSauna ? (
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-50/80 rounded-[1.25rem] p-4 border border-gray-100 group-hover:bg-[#f3f0ff]/50 transition-colors">
@@ -133,13 +126,19 @@ export default function SedeCard({ sede }: { sede: Sede }) {
         </div>
 
         {/* Botón Reservar */}
-        <div>
+        <div className="mt-auto" style={{ marginTop: 'auto' }}>
           <Link
             href={`/reservar/${sede.id}`}
-            className="w-full py-4 px-6 text-center font-bold text-white bg-gray-900 hover:bg-[#49369b] rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md shadow-gray-900/10 hover:shadow-xl hover:shadow-[#49369b]/30 group/btn"
+            className="relative w-full py-4 px-6 font-extrabold text-white rounded-2xl transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group/btn shadow-[0_8px_20px_rgba(73,54,155,0.2)] hover:shadow-[0_15px_30px_rgba(238,116,75,0.3)] hover:-translate-y-1"
           >
-            Configurar Reserva
-            <ArrowRight className="w-5 h-5 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
+            {/* Fondo dinámico animado */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#49369b] via-[#6a53d8] to-[#EE744B] bg-[length:200%_auto] bg-left group-hover/btn:bg-right transition-all duration-500"></div>
+            
+            {/* Brillo */}
+            <div className="absolute inset-0 opacity-0 group-hover/btn:opacity-20 bg-gradient-to-t from-transparent via-white to-transparent -skew-x-12 translate-x-[-100%] group-hover/btn:animate-[shimmer_1s_ease-in-out]"></div>
+
+            <span className="relative z-10 text-[15px] sm:text-base uppercase tracking-widest text-shadow-sm">Configurar Reserva</span>
+            <ArrowRight className="relative z-10 w-6 h-6 transform group-hover/btn:translate-x-1.5 scale-90 group-hover/btn:scale-100 transition-all duration-300" />
           </Link>
         </div>
       </div>

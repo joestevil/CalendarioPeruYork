@@ -22,11 +22,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+/* Removed conflicting unlayered universal reset that overrode all Tailwind v4 spatial utilities */
 
 /* Base input resets as fallback */
 input, select {

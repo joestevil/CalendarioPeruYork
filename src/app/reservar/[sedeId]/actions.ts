@@ -81,25 +81,26 @@ export async function createBookingAction(formData: FormData) {
 
     const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
     if (webhookUrl && webhookUrl.startsWith('http')) {
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: insertedData.id,
-            sede_id,
-            sede_nombre,
-            cliente_nombre,
-            cliente_correo,
-            cliente_telefono,
-            fecha_entrada,
-            fecha_salida,
-            monto_total
-          })
-        });
-      } catch (webhookError) {
-        console.error('Webhook error:', webhookError);
-      }
+      // Fire-and-forget webhooks sin await para no frenar la respuesta al cliente
+      // Si N8N está dormido o demora, no importa.
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: insertedData.id,
+          sede_id,
+          sede_nombre,
+          cliente_nombre,
+          cliente_correo,
+          cliente_telefono,
+          fecha_entrada,
+          fecha_salida,
+          monto_total
+        }),
+        signal: AbortSignal.timeout(3000)
+      }).catch(() => {
+        // Ignoramos silenciosamente para no asustar con logs rojos en la terminal.
+      });
     }
 
     return { success: true };

@@ -11,7 +11,7 @@ export default async function Home() {
     .order('nombre');
 
   return (
-    <main className="w-full bg-[#f8f9fa] min-h-screen text-gray-900 flex flex-col items-center justify-center p-4 py-20 pb-32">
+    <main className="w-full bg-[#f8f9fa] min-h-screen text-gray-900 flex flex-col items-center justify-center px-6 md:px-12 py-24 pb-36">
       <div className="max-w-7xl w-full flex flex-col items-center">
         {/* Brand visual focus - Dark badge to contrast the light logo */}
         <a href="https://peruyork.com/" target="_blank" rel="noopener noreferrer" className="block w-auto h-32 md:h-40 mb-8 bg-[#49369b] p-4 md:p-6 rounded-[2.5rem] shadow-[0_15px_40px_rgba(73,54,155,0.4)] border-4 border-white hover:scale-105 hover:-translate-y-2 transition-all duration-500 cursor-pointer">
@@ -36,7 +36,7 @@ export default async function Home() {
           </div>
         )}
 
-        <div className="grid w-full gap-8 md:gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mt-4">
+        <div className="grid w-full gap-10 md:gap-14 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mt-4">
           {(sedes as any[] | null)?.map((sede) => (
             <SedeCard key={sede.id} sede={sede} />
           ))}
