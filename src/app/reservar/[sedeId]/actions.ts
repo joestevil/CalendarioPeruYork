@@ -81,26 +81,28 @@ export async function createBookingAction(formData: FormData) {
 
     const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
     if (webhookUrl && webhookUrl.startsWith('http')) {
-      // Fire-and-forget webhooks sin await para no frenar la respuesta al cliente
-      // Si N8N está dormido o demora, no importa.
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: insertedData.id,
-          sede_id,
-          sede_nombre,
-          cliente_nombre,
-          cliente_correo,
-          cliente_telefono,
-          fecha_entrada,
-          fecha_salida,
-          monto_total
-        }),
-        signal: AbortSignal.timeout(3000)
-      }).catch(() => {
-        // Ignoramos silenciosamente para no asustar con logs rojos en la terminal.
-      });
+      // Restauramos el await para asegurar que el webhook se procese completamente
+      // y no sea abortado por el cierre del entorno del servidor.
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: insertedData.id,
+            sede_id,
+            sede_nombre,
+            cliente_nombre,
+            cliente_correo,
+            cliente_telefono,
+            fecha_entrada,
+            fecha_salida,
+            monto_total
+          })
+        });
+      } catch (webhookError) {
+        // Ignoramos el error en consola para que no parezca un error destructivo.
+        // La reserva ya está guardada en este punto de forma segura.
+      }
     }
 
     return { success: true };
