@@ -59,11 +59,11 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-full hover:text-[#49369b] hover:border-[#49369b] shadow-sm transition-colors w-fit" style={{ padding: '0.6rem 1.25rem' }}>
             &larr; Volver al inicio
           </Link>
-          <a href="https://peruyork.com/" target="_blank" rel="noopener noreferrer" className="bg-[#49369b] rounded-xl shadow-md border-2 border-white hover:scale-105 transition-transform cursor-pointer flex items-center justify-center" style={{ padding: '0.5rem 0.75rem' }}>
+          <a href="https://peruyork.com/" target="_blank" rel="noopener noreferrer" className="rounded-xl shadow-md border-2 border-white overflow-hidden hover:scale-105 transition-transform cursor-pointer flex items-center justify-center">
             <img
-              src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,fit=crop/C5tK1MdBFcE0xoxN/disea--o-sin-tatulo-7-NV9ysWCBXslY3SWD.png"
+              src="/logo.png"
               alt="Peruyork Logo"
-              className="h-8 md:h-10 w-auto object-contain"
+              className="h-10 w-10 md:h-12 md:w-12 object-cover"
             />
           </a>
         </div>

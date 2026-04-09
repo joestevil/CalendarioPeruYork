@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Peruyork Airbnb',
   description: 'Vive diferente. Descansa mejor. Repite.',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({
