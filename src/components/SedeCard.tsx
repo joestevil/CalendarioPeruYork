@@ -22,7 +22,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
     direccion = direccion || 'Calle España, Chiclayo (2do piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   } else if (isSauna) {
-    imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyLeTURtVV8WGEBQ4nkbVHAAzmI1WSVcsZLg&s';
+    imageUrl = 'https://res.cloudinary.com/dpxslk02r/image/upload/v1776058334/a526acf6-e399-4556-b451-0c8cceb469ff.png';
     direccion = direccion || 'Calle España, Chiclayo (3er piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   }
