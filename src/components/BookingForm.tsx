@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
-import { format, isWithinInterval, parseISO, startOfDay, differenceInDays } from 'date-fns';
+import { format, isWithinInterval, parseISO, startOfDay, differenceInDays, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
 import { createBookingAction } from '../app/reservar/[sedeId]/actions';
@@ -13,13 +13,26 @@ type ExistingBooking = {
   fecha_salida: string;
 };
 
-export default function BookingForm({ sedeId, existingBookings, basePrice = 150 }: { sedeId: string; existingBookings: ExistingBooking[]; basePrice?: number; }) {
+export default function BookingForm({ sedeId, existingBookings: initialBookings, basePrice = 150 }: { sedeId: string; existingBookings: ExistingBooking[]; basePrice?: number; }) {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
   const [huespedes, setHuespedes] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingBookings, setExistingBookings] = useState(initialBookings);
+
+  useEffect(() => {
+    if (selectedDate) {
+      setDateRange({
+        from: selectedDate,
+        to: addDays(selectedDate, 1)
+      });
+    } else {
+      setDateRange(undefined);
+    }
+  }, [selectedDate]);
 
   const nights = dateRange?.from && dateRange?.to ? Math.max(1, differenceInDays(dateRange.to, dateRange.from)) : 0;
   const extraPersonCost = Math.max(0, huespedes - 4) * 25;
@@ -40,7 +53,7 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dateRange?.from || !dateRange?.to) return toast.error('Selecciona fechas de entrada y salida.');
+    if (!dateRange?.from || !dateRange?.to) return toast.error('Selecciona una fecha de entrada.');
     if (!nombre || !correo || !telefono) return toast.error('Completa todos los datos.');
 
     setIsSubmitting(true);
@@ -50,15 +63,18 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
     formData.append('correo', correo);
     formData.append('telefono', telefono);
     formData.append('huespedes', huespedes.toString());
-    formData.append('fechaEntrada', format(dateRange.from, 'yyyy-MM-dd'));
-    formData.append('fechaSalida', format(dateRange.to, 'yyyy-MM-dd'));
+    const fechaEntrada = format(dateRange.from, 'yyyy-MM-dd');
+    const fechaSalida = format(dateRange.to, 'yyyy-MM-dd');
+    formData.append('fechaEntrada', fechaEntrada);
+    formData.append('fechaSalida', fechaSalida);
     formData.append('isHourly', 'false');
 
     const result = await createBookingAction(formData);
 
     if (result.success) {
       toast.success('¡Reserva confirmada con éxito!');
-      setDateRange(undefined);
+      setExistingBookings([...existingBookings, { fecha_entrada: fechaEntrada, fecha_salida: fechaSalida }]);
+      setSelectedDate(undefined);
       setNombre(''); setCorreo(''); setTelefono('');
     } else {
       toast.error(result.error || 'Error al procesar la reserva.');
@@ -71,8 +87,8 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
       
       {/* Calendar Section */}
       <div className="mb-10">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Fechas de estadía</h2>
-        <p className="text-sm text-gray-500 mb-5">Selecciona tu rango de días.</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">Fecha de estadía</h2>
+        <p className="text-sm text-gray-500 mb-5">Selecciona tu día de llegada. La salida es al día siguiente.</p>
         
         <div 
           className="w-full border border-gray-100 rounded-xl overflow-x-auto custom-calendar-wrapper"
@@ -87,14 +103,23 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
               margin: 0 auto; 
               display: inline-block;
             }
-            .rdp-day_selected { font-weight: 800 !important; color: white !important; }
-            .rdp-day_selected:not(.rdp-day_range_start):not(.rdp-day_range_end) { 
-              background-color: var(--rdp-background-color) !important; 
-              color: var(--rdp-accent-color) !important; 
+            .rdp-day {
+              transition: all 0.2s ease-in-out;
+            }
+            .rdp-day:hover {
+              background-color: var(--rdp-background-color);
+              transform: scale(1.05);
+            }
+            .rdp-day_selected { 
+              background-color: var(--rdp-accent-color) !important;
+              color: white !important; 
+              font-weight: 800 !important;
+              transform: scale(1.1);
+              border-radius: 50%;
             }
             @media (min-width: 768px) { .rdp { --rdp-cell-size: 48px; } }
           `}} />
-          <DayPicker mode="range" selected={dateRange} onSelect={setDateRange} disabled={isDateBlocked} locale={es} />
+          <DayPicker mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={isDateBlocked} locale={es} />
         </div>
       </div>
 
@@ -177,7 +202,7 @@ export default function BookingForm({ sedeId, existingBookings, basePrice = 150 
             </>
           ) : (
             <div className="py-2">
-              <p className="text-sm text-gray-500 italic">Selecciona fechas de tu estadía para ver el total.</p>
+              <p className="text-sm text-gray-500 italic">Selecciona una fecha de tu estadía para ver el total.</p>
             </div>
           )}
         </div>
