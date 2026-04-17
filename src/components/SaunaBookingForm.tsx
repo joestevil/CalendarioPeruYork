@@ -19,6 +19,16 @@ export default function SaunaBookingForm({ sedeId, existingBookings }: { sedeId:
   const [telefono, setTelefono] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const getPrice = (hours: number) => {
+    switch (hours) {
+      case 1: return 60;
+      case 2: return 120;
+      case 3: return 135;
+      default: return 60;
+    }
+  };
+  const totalPrice = getPrice(duration);
+
   const availableHours = Array.from({ length: 15 }, (_, i) => {
     const hour = i + 8;
     return `${hour.toString().padStart(2, '0')}:00`;
@@ -104,7 +114,6 @@ export default function SaunaBookingForm({ sedeId, existingBookings }: { sedeId:
                 <option value={1}>1 Hora</option>
                 <option value={2}>2 Horas</option>
                 <option value={3}>3 Horas</option>
-                <option value={4}>4 Horas</option>
               </select>
             </div>
           </div>
@@ -159,7 +168,7 @@ export default function SaunaBookingForm({ sedeId, existingBookings }: { sedeId:
       >
         <div className="flex flex-col items-start text-left">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total a Pagar</p>
-          <p className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-none">${(duration * 20).toFixed(2)}</p>
+          <p className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-none">S/ {totalPrice.toFixed(2)}</p>
         </div>
         <button
           type="submit" disabled={isSubmitting}
