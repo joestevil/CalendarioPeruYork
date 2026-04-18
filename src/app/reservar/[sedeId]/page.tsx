@@ -25,8 +25,16 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
     .eq('sede_id', sedeId)
     .in('estado', ['pendiente', 'confirmado', 'Pagado', 'pagado']);
 
-  const existingBookings = reservas || [];
+  let existingBookings = reservas || [];
   const isSauna = sede.nombre.toLowerCase().includes('sauna');
+
+  // Bloquear fechas para Sol de Pimentel
+  if (sede.nombre.toLowerCase().includes('sol de pimentel')) {
+    existingBookings.push({
+      fecha_entrada: '2026-04-17',
+      fecha_salida: '2026-04-24' // Bloquea hasta el 23 inclusive, el 24 y 25 quedan libres
+    });
+  }
 
   let imageUrl = null;
   let direccion = (sede as any).direccion;
