@@ -10,7 +10,7 @@ export async function createBookingAction(formData: FormData) {
     const cliente_correo = formData.get('correo') as string;
     const cliente_telefono = formData.get('telefono') as string;
     const fecha_entrada = formData.get('fechaEntrada') as string;
-    const fecha_salida = formData.get('fechaSalida') as string;
+    let fecha_salida = formData.get('fechaSalida') as string;
     const isHourly = formData.get('isHourly') === 'true';
 
     if (!sede_id || !cliente_nombre || !cliente_correo || !cliente_telefono || !fecha_entrada || !fecha_salida) {
@@ -32,16 +32,32 @@ export async function createBookingAction(formData: FormData) {
     }
 
     let monto_total = 0;
+    let horas_reservadas = 0;
+    let dias_reservados = 0;
     
     if (isHourly) {
        const hours = Math.max(1, differenceInHours(end, start));
-       monto_total = hours * 20; // $20/hr tarifa base sauna
+       horas_reservadas = hours;
+       if (hours === 1) monto_total = 60;
+       else if (hours === 2) monto_total = 100;
+       else if (hours === 3) monto_total = 135;
+       else monto_total = 135 + (hours - 3) * 40;
+       
+       // Fix para la BD: Si la reserva es el mismo día, sumar un día a la fecha_salida 
+       // para pasar el constraint "fechas_validas" (fecha_entrada < fecha_salida) 
+       // ya que la BD trunca las horas (tipo DATE).
+       if (fecha_entrada.split('T')[0] === fecha_salida.split('T')[0]) {
+         const nextDay = new Date(end);
+         nextDay.setDate(nextDay.getDate() + 1);
+         fecha_salida = nextDay.toISOString();
+       }
     } else {
        const basePrice = sede_nombre.toLowerCase().includes('sol de pimentel') ? 180 : 150;
        const huespedes = parseInt(formData.get('huespedes') as string || '1', 10);
        const extras = Math.max(0, huespedes - 4) * 25;
 
        const nights = Math.max(1, differenceInDays(end, start));
+       dias_reservados = nights;
        monto_total = nights * (basePrice + extras);
     }
 
@@ -96,7 +112,10 @@ export async function createBookingAction(formData: FormData) {
             cliente_telefono,
             fecha_entrada,
             fecha_salida,
-            monto_total
+            monto_total,
+            is_sauna: isHourly,
+            horas: horas_reservadas,
+            dias: dias_reservados
           })
         });
       } catch (webhookError) {
@@ -108,6 +127,6 @@ export async function createBookingAction(formData: FormData) {
     return { success: true };
   } catch (error: any) {
     console.error('Error action:', error);
-    return { success: false, error: 'Ocurrió un error inesperado al procesar la reserva.' };
+    return { success: false, error: error.message || 'Ocurrió un error inesperado al procesar la reserva.' };
   }
 }
