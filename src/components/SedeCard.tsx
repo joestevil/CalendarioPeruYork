@@ -8,6 +8,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
   if (!sede.activo) return null;
   
   const isSauna = sede.nombre.toLowerCase().includes('sauna');
+  const displayName = isSauna ? 'Sauna & Jacuzzi' : sede.nombre;
   
   let imageUrl = null;
   let direccion = (sede as any).direccion;
@@ -45,7 +46,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
       }`}>
         {imageUrl ? (
           <>
-            <img src={imageUrl} alt={sede.nombre} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <img src={imageUrl} alt={displayName} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
           </>
         ) : (
@@ -66,7 +67,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[35%] z-10">
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-2xl sm:rounded-3xl shadow-[0_15px_35px_rgba(0,0,0,0.15)] flex items-center justify-center border-b-4 border-gray-100/50 group-hover:-translate-y-2 transition-transform duration-500">
               <span className="text-4xl sm:text-5xl font-black text-[#49369b] tracking-tighter">
-                {sede.nombre.charAt(0)}
+                {displayName.charAt(0)}
               </span>
             </div>
           </div>
@@ -80,7 +81,7 @@ export default function SedeCard({ sede }: { sede: Sede }) {
       >
         
         <h3 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 tracking-normal group-hover:text-[#49369b] transition-colors pr-12 leading-snug">
-          {sede.nombre}
+          {displayName}
         </h3>
         {mapaUrl ? (
           <a href={mapaUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-[#EE744B] font-medium mb-4 flex items-center gap-1.5 opacity-80 transition-colors">

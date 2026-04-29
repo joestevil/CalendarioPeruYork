@@ -27,6 +27,7 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
 
   let existingBookings = reservas || [];
   const isSauna = sede.nombre.toLowerCase().includes('sauna');
+  const displayName = isSauna ? 'Sauna & Jacuzzi' : sede.nombre;
 
   // Bloquear fechas para Sol de Pimentel
   if (sede.nombre.toLowerCase().includes('sol de pimentel')) {
@@ -46,11 +47,11 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
     mapaUrl = 'https://maps.app.goo.gl/CUpUKXf2n2eYJ9Ty6';
   } else if (sede.nombre.toLowerCase().includes('españa')) {
     imageUrl = 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=564,fit=crop/C5tK1MdBFcE0xoxN/comedor-cocina-fuHN4NfGZaF38gc2.png';
-    direccion = direccion || 'Avenida España,(2do piso)';
+    direccion = direccion || 'Calle España # 100 , (2do piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   } else if (isSauna) {
     imageUrl = 'https://res.cloudinary.com/dpxslk02r/image/upload/v1776058334/a526acf6-e399-4556-b451-0c8cceb469ff.png';
-    direccion = direccion || 'Avenida España,(3er piso)';
+    direccion = direccion || 'Calle España # 100, (3er piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   }
 
@@ -82,7 +83,7 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
           <div className="md:col-span-1 flex flex-col gap-6 md:sticky md:top-12">
             {imageUrl && (
               <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex-shrink-0">
-                <img src={imageUrl} alt={sede.nombre} className="w-full h-full object-cover" />
+                <img src={imageUrl} alt={displayName} className="w-full h-full object-cover" />
               </div>
             )}
             <div>
@@ -91,7 +92,7 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
                 {isSauna ? 'RESERVA POR HORAS' : 'RESERVA DE ESTADÍA'}
               </span>
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 mb-2 leading-tight">
-                {sede.nombre}
+                {displayName}
               </h1>
               {mapaUrl ? (
                 <a href={mapaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-500 hover:text-[#EE744B] mb-4 font-medium transition-colors w-fit">
