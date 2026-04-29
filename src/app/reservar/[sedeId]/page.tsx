@@ -46,11 +46,11 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
     mapaUrl = 'https://maps.app.goo.gl/CUpUKXf2n2eYJ9Ty6';
   } else if (sede.nombre.toLowerCase().includes('españa')) {
     imageUrl = 'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=564,fit=crop/C5tK1MdBFcE0xoxN/comedor-cocina-fuHN4NfGZaF38gc2.png';
-    direccion = direccion || 'Avenida España, Trujillo Centro (2do piso)';
+    direccion = direccion || 'Avenida España,(2do piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   } else if (isSauna) {
     imageUrl = 'https://res.cloudinary.com/dpxslk02r/image/upload/v1776058334/a526acf6-e399-4556-b451-0c8cceb469ff.png';
-    direccion = direccion || 'Avenida España, Trujillo Centro (3er piso)';
+    direccion = direccion || 'Avenida España,(3er piso)';
     mapaUrl = 'https://maps.app.goo.gl/A4qtDw3oqcDxU3QLA';
   }
 

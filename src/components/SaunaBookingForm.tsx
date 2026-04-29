@@ -20,12 +20,11 @@ export default function SaunaBookingForm({ sedeId, existingBookings }: { sedeId:
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getPrice = (hours: number) => {
-    switch (hours) {
-      case 1: return 60;
-      case 2: return 120;
-      case 3: return 135;
-      default: return 60;
-    }
+    if (hours === 1) return 60;
+    if (hours === 2) return 100;
+    if (hours === 3) return 135;
+    if (hours >= 4) return 135 + (hours - 3) * 40;
+    return 60;
   };
   const totalPrice = getPrice(duration);
 
@@ -111,9 +110,9 @@ export default function SaunaBookingForm({ sedeId, existingBookings }: { sedeId:
                 style={{ padding: '1rem 1.25rem', minHeight: '3.5rem', fontSize: '1.05rem' }}
                 value={duration} onChange={(e) => setDuration(Number(e.target.value))}
               >
-                <option value={1}>1 Hora</option>
-                <option value={2}>2 Horas</option>
-                <option value={3}>3 Horas</option>
+                {Array.from({ length: 24 }, (_, i) => i + 1).map(h => (
+                  <option key={h} value={h}>{h} Hora{h > 1 ? 's' : ''}</option>
+                ))}
               </select>
             </div>
           </div>
