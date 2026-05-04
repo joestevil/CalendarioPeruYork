@@ -14,7 +14,6 @@ type ExistingBooking = {
 };
 
 export default function BookingForm({ sedeId, existingBookings: initialBookings, basePrice = 150 }: { sedeId: string; existingBookings: ExistingBooking[]; basePrice?: number; }) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
@@ -22,17 +21,6 @@ export default function BookingForm({ sedeId, existingBookings: initialBookings,
   const [huespedes, setHuespedes] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingBookings, setExistingBookings] = useState(initialBookings);
-
-  useEffect(() => {
-    if (selectedDate) {
-      setDateRange({
-        from: selectedDate,
-        to: addDays(selectedDate, 1)
-      });
-    } else {
-      setDateRange(undefined);
-    }
-  }, [selectedDate]);
 
   const nights = dateRange?.from && dateRange?.to ? Math.max(1, differenceInDays(dateRange.to, dateRange.from)) : 0;
   const extraPersonCost = Math.max(0, huespedes - 4) * 25;
@@ -46,14 +34,17 @@ export default function BookingForm({ sedeId, existingBookings: initialBookings,
 
   const isDateBlocked = (date: Date) => {
     if (startOfDay(date) < startOfDay(new Date())) return true;
-    return blockedIntervals.some((interval) =>
-      isWithinInterval(startOfDay(date), { start: interval.start, end: interval.end })
-    );
+    return blockedIntervals.some((interval) => {
+      // Un día está bloqueado si cae DENTRO del rango [entrada, salida]
+      // Nota: El día de salida de una reserva puede ser el día de entrada de otra.
+      const d = startOfDay(date);
+      return d >= interval.start && d < interval.end;
+    });
   };
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dateRange?.from || !dateRange?.to) return toast.error('Selecciona una fecha de entrada.');
+    if (!dateRange?.from || !dateRange?.to) return toast.error('Selecciona el rango de fechas.');
     if (!nombre || !correo || !telefono) return toast.error('Completa todos los datos.');
 
     setIsSubmitting(true);
@@ -74,7 +65,7 @@ export default function BookingForm({ sedeId, existingBookings: initialBookings,
     if (result.success) {
       toast.success('¡Reserva confirmada con éxito!');
       setExistingBookings([...existingBookings, { fecha_entrada: fechaEntrada, fecha_salida: fechaSalida }]);
-      setSelectedDate(undefined);
+      setDateRange(undefined);
       setNombre(''); setCorreo(''); setTelefono('');
     } else {
       toast.error(result.error || 'Error al procesar la reserva.');
@@ -88,7 +79,7 @@ export default function BookingForm({ sedeId, existingBookings: initialBookings,
       {/* Calendar Section */}
       <div className="mb-10">
         <h2 className="text-xl font-bold text-gray-900 mb-1">Fecha de estadía</h2>
-        <p className="text-sm text-gray-500 mb-5">Selecciona tu día de llegada. La salida es al día siguiente.</p>
+        <p className="text-sm text-gray-500 mb-5">Selecciona el rango de días para tu estadía.</p>
         
         <div 
           className="w-full border border-gray-100 rounded-xl overflow-x-auto custom-calendar-wrapper"
@@ -117,9 +108,14 @@ export default function BookingForm({ sedeId, existingBookings: initialBookings,
               transform: scale(1.1);
               border-radius: 50%;
             }
+            .rdp-day_range_middle {
+              background-color: var(--rdp-background-color) !important;
+              color: var(--rdp-accent-color) !important;
+              border-radius: 0 !important;
+            }
             @media (min-width: 768px) { .rdp { --rdp-cell-size: 48px; } }
           `}} />
-          <DayPicker mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={isDateBlocked} locale={es} />
+          <DayPicker mode="range" selected={dateRange} onSelect={setDateRange} disabled={isDateBlocked} locale={es} />
         </div>
       </div>
 

@@ -23,7 +23,7 @@ export default async function ReservarPage({ params }: { params: Promise<{ sedeI
   const { data: reservas } = await (supabase.from('reservas') as any)
     .select('fecha_entrada, fecha_salida')
     .eq('sede_id', sedeId)
-    .in('estado', ['pendiente', 'confirmado', 'Pagado', 'pagado']);
+    .in('estado', ['pendiente', 'confirmado', 'Pagado', 'pagado', 'bloqueado']);
 
   let existingBookings = reservas || [];
   const isSauna = sede.nombre.toLowerCase().includes('sauna');
